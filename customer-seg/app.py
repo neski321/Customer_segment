@@ -9,7 +9,7 @@ from src.eda import (
 )
 
 st.set_page_config(page_title="Customer Segmentation App", layout="wide")
-st.title("📊 Customer Segmentation Dashboard")
+st.title("Customer Segmentation Dashboard")
 
 # --- File Upload with Encoding Fallback ---
 st.sidebar.header("📁 Upload CRM Dataset")
@@ -30,8 +30,12 @@ if uploaded_file is not None:
         st.error(f"❌ Failed to read file: {e}")
         st.stop()
 else:
-    df_raw = pd.read_excel('data/Online Retail.xlsx')
-    file_source = "📄 Default dataset (Online Retail.xlsx)"
+    try:
+        df_raw = pd.read_excel('data/Online Retail.xlsx')
+        file_source = "📄 Default dataset (Online Retail.xlsx)"
+    except FileNotFoundError:
+        st.error("❌ Default dataset not found. Please upload your own CRM file to continue.")
+        st.stop()
 
 st.success(f"✅ Using data from: {file_source}")
 
@@ -41,7 +45,7 @@ st.dataframe(df_raw.head())
 st.write("📌 Available columns:", df_raw.columns.tolist())
 
 # --- Column Mapping ---
-st.sidebar.header("Map Your Columns")
+st.sidebar.header("🧩 Map Your Columns")
 
 def suggest_column(possible_names, fallback):
     for name in possible_names:
