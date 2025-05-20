@@ -11,7 +11,7 @@ from src.eda import (
 st.set_page_config(page_title="Customer Segmentation App", layout="wide")
 st.title("Customer Segmentation Dashboard")
 
-# --- File Upload with Encoding Fallback ---
+# File Upload with Encoding Fallback
 st.sidebar.header("📁 Upload CRM Dataset")
 uploaded_file = st.sidebar.file_uploader("Upload .xlsx or .csv file", type=["xlsx", "csv"])
 
@@ -35,6 +35,7 @@ else:
         file_source = "📄 Default dataset (Online Retail.xlsx)"
     except FileNotFoundError:
         st.error("❌ Default dataset not found. Please upload your own CRM file to continue.")
+        st.markdown("🔗 You can also download the original demo dataset from the [UCI Repository](https://archive.ics.uci.edu/dataset/352/online+retail).")
         st.stop()
 
 st.success(f"✅ Using data from: {file_source}")
@@ -63,7 +64,7 @@ col_map = {
     'UnitPrice': st.sidebar.selectbox("💰 Unit Price Column", columns, index=suggest_column(['UnitPrice', 'price_per_unit', 'unit_cost'], 'UnitPrice')),
 }
 
-# --- Rename Columns ---
+#  Renaming Columns
 df = df_raw.rename(columns={
     col_map['CustomerID']: 'CustomerID',
     col_map['InvoiceNo']: 'InvoiceNo',
@@ -72,11 +73,11 @@ df = df_raw.rename(columns={
     col_map['UnitPrice']: 'UnitPrice'
 })
 
-# --- Country Filter Dropdown (after renaming) ---
+# Country Filter Dropdown
 available_countries = sorted(df['Country'].dropna().unique()) if 'Country' in df.columns else []
 country_filter = st.sidebar.selectbox("🌍 Filter by Country", options=["All"] + available_countries)
 
-# --- Clean & Process Data ---
+# Clean & Process Data 
 try:
     if country_filter != "All":
         if "Country" in df.columns:
@@ -89,7 +90,7 @@ try:
     df = df.dropna(subset=['CustomerID'])
     df = df[~df['InvoiceNo'].astype(str).str.startswith('C')]
 
-    # --- Determine max number of clusters based on sample size ---
+    # Determine max number of clusters based on sample size 
     max_clusters = min(10, df["CustomerID"].nunique()) if "CustomerID" in df.columns else 10
     num_clusters = st.sidebar.slider("Number of Segments", 2, max_clusters, min(4, max_clusters))
 
@@ -102,12 +103,12 @@ except Exception as e:
     st.error(f"❌ Error during data processing: {e}")
     st.stop()
 
-# --- App Tabs ---
+# App Tabs 
 tab1, tab2, tab3, tab4 = st.tabs([
     "📋 Segment Summary", "🏆 Top Customers", "📈 Distributions", "🗃 Full Dataset"
 ])
 
-# --- Segment Summary ---
+# Segment Summary
 with tab1:
     st.subheader("📋 Segment Profile Summary")
     summary = profile_segment_summary(rfm_df)
@@ -115,7 +116,7 @@ with tab1:
     csv = summary.to_csv(index=True).encode('utf-8')
     st.download_button("📥 Download Segment Summary", csv, "segment_summary.csv", "text/csv")
 
-# --- Top Customers ---
+# Top Customers
 with tab2:
     st.subheader("🏆 Top Customers")
     st.markdown(f"### 🔁 Most Frequent (Top {top_n})")
@@ -130,7 +131,7 @@ with tab2:
     st.markdown("### 🌍 Orders by Country")
     st.dataframe(orders_by_country(df), use_container_width=True)
 
-# --- RFM Distributions ---
+# RFM Distributions 
 with tab3:
     st.subheader("📈 RFM Distributions")
     st.markdown("#### Recency")
@@ -142,7 +143,7 @@ with tab3:
     st.markdown("#### Monetary")
     plot_monetary_distribution(rfm_df)
 
-# --- Full Dataset ---
+# Full Dataset 
 with tab4:
     st.subheader("🗃 Full RFM + Segment Data")
     st.dataframe(rfm_df.head(100), use_container_width=True)
