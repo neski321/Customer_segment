@@ -35,6 +35,7 @@ else:
         file_source = "📄 Default dataset (Online Retail.xlsx)"
     except FileNotFoundError:
         st.error("❌ Default dataset not found. Please upload your own CRM file to continue.")
+        st.markdown("🔗 You can also download the original demo dataset from the [UCI Repository](https://archive.ics.uci.edu/dataset/352/online+retail).")
         st.stop()
 
 st.success(f"✅ Using data from: {file_source}")
